@@ -11,6 +11,7 @@ if (rstudioapi::isAvailable()) {
   wdir <- dirname(getActiveDocumentContext()$path)
 }
 library("biomaRt")
+library(stringr)
 
 # Setting Working Directory
 setwd(paste0(wdir, "/Data"))
@@ -137,33 +138,24 @@ for (i in seq(1, nrow(proteins_sorted))) {
 write.csv(nef_ratio, file = "infectivity_with_rpm.csv", row.names = FALSE)
 
 proteins_below_threshold <- read.csv("proteins_below_threshold.csv")
-
+proteins_below_threshold <- subset(proteins_below_threshold, select = c(id, p_value, corr, hgnc_symbol))
+proteins_below_threshold <- proteins_below_threshold[order(proteins_below_threshold$p_value), ]
 infectivity_with_rpm <- read.csv("infectivity_with_rpm.csv")
-
-ncol(infectivity_with_rpm)
-
-correlation_tests_spearman <- c()
-correlation_tests_spearman_p <- c()
 
 for (i in 4:ncol(infectivity_with_rpm)) {
   col_name <- colnames(infectivity_with_rpm)[i]
   correlation_test <- cor.test(infectivity_with_rpm[[col_name]],
                                infectivity_with_rpm$infectivity_ratio,
-                               method = "spearman")
-
-  # Add the correlation test result to the list
-  correlation_tests_spearman <- c(correlation_tests_spearman, correlation_test$estimate)
-  correlation_tests_spearman_p <- c(correlation_tests_spearman_p, correlation_test$p.value)
+                               method = "spearman",
+                               exact = FALSE)
+  id <- str_extract(col_name, "(?<=RPM_).*")  # Extract the ID using regex
+  print(col_name)
+  cat("corr estimate:", correlation_test$estimate, "of id:", id, "\n",
+      "\n","number", i, "out of:", ncol(infectivity_with_rpm), "done\n")
+  proteins_below_threshold$corr_spearman[proteins_below_threshold$id == id] <- correlation_test$estimate
+  proteins_below_threshold$p_value_spearman[proteins_below_threshold$id == id] <- correlation_test$p.value
 }
 
-View(correlation_tests_spearman_p)
-
-proteins_below_threshold$corr_spearman <- correlation_tests_spearman
-proteins_below_threshold$p_value_spearman <- correlation_tests_spearman_p
 View(proteins_below_threshold)
 
-proteins_sorted_spearman <- proteins_below_threshold[order(proteins_below_threshold$p_value_spearman), ]
-
-View(proteins_sorted_spearman)
-
-write.csv(proteins_sorted_spearman, file = "proteins_below_threshold.csv", row.names = FALSE)
+write.csv(proteins_below_threshold, file = "proteins_below_threshold.csv", row.names = FALSE)

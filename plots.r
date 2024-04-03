@@ -76,6 +76,8 @@ legend("topright", legend = "Theoretical Normal", lty = 1, col = 2)
 proteins_below_threshold <- read.csv(file = "proteins_below_threshold.csv",
                                      header = TRUE)
 
+proteins_below_threshold <- proteins_below_threshold[order(proteins_below_threshold$corr, decreasing = TRUE), ]
+View(proteins_below_threshold)
 
 plot_correlation <- function(number, df, method) {
   iterations <- 0
@@ -83,24 +85,21 @@ plot_correlation <- function(number, df, method) {
   while (iterations < number) {
     protein_id <- df$id[i]
     protein_name <- df$hgnc_symbol[i]
-    rpm <- nef_ratio[, paste0("RPM_", protein_id)]
-
+    rpm <- nef_ratio[[paste0("RPM_", protein_id)]]
     shapiro <- shapiro.test(rpm)
-
     method_here <- ifelse(shapiro$p.value < 0.05, "spearman", "pearson")
 
-    if (method_here != method) {
+    if ((method == "pearson" && method_here != method) || protein_name == "" || is.na(protein_name)) {
       i <- i + 1
       next
     }
 
-    corr <- cor.test(nef_ratio$infectivity_ratio, rpm, method = method)
+    corr <- cor.test(nef_ratio$infectivity_ratio, rpm, method = method, exact = FALSE)
     linear_model <- lm(rpm ~ nef_ratio$infectivity_ratio)
     # summary_linear_model <- summary(linear_model)
 
     r <- corr$estimate
     p_value <- corr$p.value
-
 
     plot(nef_ratio$infectivity_ratio, rpm, pch = 19, col = color_vector,
          xlab = "infectivity ratio", ylab = "RPM",
@@ -120,31 +119,27 @@ proteins_num <- 5
 num_rows <- ceiling(sqrt(proteins_num))  # Round up to the nearest integer
 num_cols <- ceiling(proteins_num / num_rows)
 
-neg_corr_df <- proteins_below_threshold[proteins_below_threshold$corr < 0, ]
-neg_corr_df_spearman <- proteins_below_threshold[proteins_below_threshold$corr_spearman < 0, ]
-neg_corr_df_spearman <- neg_corr_df_spearman[order(neg_corr_df_spearman$corr_spearman), ]
-
-proteins_below_threshold <- proteins_below_threshold[order(proteins_below_threshold$corr, decreasing = TRUE), ]
-
+pos_normally_df <- proteins_below_threshold[order(proteins_below_threshold$corr, decreasing = TRUE), ]
 par(mfrow = c(num_rows, num_cols))
-plot_correlation(proteins_num, proteins_below_threshold, "pearson")
+plot_correlation(proteins_num, pos_normally_df, "pearson")
 mtext("Top 5 Positive Correlation with normally distributed data",
       side = 3, line = -1.5, outer = TRUE, cex = 1.5, font = 2)
 
+neg_normally_df <- proteins_below_threshold[order(proteins_below_threshold$corr), ]
 par(mfrow = c(num_rows, num_cols))
-plot_correlation(proteins_num, neg_corr_df, "pearson")
+plot_correlation(proteins_num, neg_normally_df, "pearson")
 mtext("Top 5 Negative Correlation with normally distributed data",
       side = 3, line = -1.5, outer = TRUE, cex = 1.5, font = 2)
 
-proteins_below_threshold <- proteins_below_threshold[order(proteins_below_threshold$p_value_spearman), ]
+pos_non_normally_spearman_df <- proteins_below_threshold[order(proteins_below_threshold$corr_spearman, decreasing = TRUE), ]
 par(mfrow = c(num_rows, num_cols))
-plot_correlation(proteins_num, proteins_below_threshold, "spearman")
+plot_correlation(proteins_num, pos_non_normally_spearman_df, "spearman")
 mtext("Top 5 Positive Correlation with non-normally distributed data",
       side = 3, line = -1.5, outer = TRUE, cex = 1.5, font = 2)
 
-
+neg_non_normally_spearman_df <- proteins_below_threshold[order(proteins_below_threshold$corr_spearman), ]
 par(mfrow = c(num_rows, num_cols))
-plot_correlation(proteins_num, neg_corr_df_spearman, "spearman")
+plot_correlation(proteins_num, neg_non_normally_spearman_df, "spearman")
 mtext("Top 5 - Negative Correlation with non-normally distributed data",
       side = 3, line = -1.5, outer = TRUE, cex = 1.5, font = 2)
 
