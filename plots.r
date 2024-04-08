@@ -18,7 +18,9 @@ setwd(paste0(wdir, "/Data"))
 
 # Importing nef data
 nef_ratio <- read.csv("infectivity_with_rpm.csv", header = TRUE)
-
+View(nef_ratio)
+proteins <- read.csv("proteins.csv", header = TRUE)
+View(proteins)
 # Plotting bar plot (Fig 1a)
 color_vector <- c("red", "red", "red", "red", "red",
                   "red", "red", "red", "green", "green",
@@ -37,8 +39,6 @@ barplot(nef_ratio$infectivity_ratio,
 # Plotting scatter plot of SERINC5 (Fig 1d)
 
 rpm_serinc5 <- nef_ratio[, paste0("RPM_", serinc5)]
-
-corr_spearman <- cor.test(nef_ratio$infectivity_ratio, rpm_serinc5 , method = "spearman")
 
 corr <- cor.test(nef_ratio$infectivity_ratio, rpm_serinc5 , method = "pearson")
 
@@ -61,7 +61,7 @@ text(4.5, max(rpm_serinc5 - 40),
      "P < 0.001", pos = 2)
 
 # Hypothesis testing
-
+corr_spearman <- cor.test(nef_ratio$infectivity_ratio, rpm_serinc5 , method = "spearman")
 shapiro.test(rpm_serinc5)
 shapiro.test(nef_ratio$infectivity_ratio)
 # Create QQ plot
@@ -167,3 +167,97 @@ barplot(variance_explained,
         main = "Scree Plot with Percentage of Variance Explained",
         col = "skyblue")
 axis(2, at = seq(0, 100, by = 10), labels = seq(0, 100, by = 10))
+
+
+# Plot of Proteins
+
+# HIRA
+HIRA <- "ENSG00000100084"
+rpm_HIRA <- nef_ratio[, paste0("RPM_", HIRA)]
+
+corr_spearman <- cor.test(nef_ratio$infectivity_ratio, rpm_HIRA , method = "spearman")
+
+linear_model <- lm(rpm_HIRA ~ nef_ratio$infectivity_ratio)
+summary_linear_model <- summary(linear_model)
+
+r <- corr_spearman$estimate
+p_value <- corr_spearman$p.value
+r_squared <- summary_linear_model$r.squared
+
+plot(nef_ratio$infectivity_ratio,
+     rpm_HIRA,
+     pch = 19,
+     col = color_vector,
+     xlab = "infectivity ratio",
+     ylab = "RPM",
+     main = "HIRA")
+abline(linear_model)
+
+text(4, max(rpm_HIRA),
+     paste("r", ":", round(r, 3)), pos = 2)
+text(4, max(rpm_HIRA - 1),
+     paste("R" %p% supsc("2"), ":", round(r_squared, 4)), pos = 2)
+text(4, max(rpm_HIRA - 2),
+     "P < 0.001", pos = 2)
+
+
+
+
+# VMP1
+VMP1 <- "ENSG00000062716"
+rpm_VMP1 <- nef_ratio[, paste0("RPM_", VMP1)]
+
+corr_spearman <- cor.test(nef_ratio$infectivity_ratio, rpm_VMP1 , method = "spearman")
+
+linear_model <- lm(rpm_VMP1 ~ nef_ratio$infectivity_ratio)
+summary_linear_model <- summary(linear_model)
+
+r <- corr_spearman$estimate
+p_value <- corr_spearman$p.value
+r_squared <- summary_linear_model$r.squared
+
+plot(nef_ratio$infectivity_ratio,
+     rpm_VMP1,
+     pch = 19,
+     col = color_vector,
+     xlab = "infectivity ratio",
+     ylab = "RPM",
+     main = "VMP1")
+abline(linear_model)
+
+text(4, max(rpm_VMP1),
+     paste("r", ":", round(r, 3)), pos = 2)
+text(4, max(rpm_VMP1 - 10),
+     paste("R" %p% supsc("2"), ":", round(r_squared, 4)), pos = 2)
+text(4, max(rpm_VMP1 - 20),
+     "P < 0.001", pos = 2)
+
+# PPP2R1B
+PPP2R1B <- "ENSG00000137713"
+rpm_PPP2R1B <- nef_ratio[, paste0("RPM_", PPP2R1B)]
+
+corr_spearman <- cor.test(nef_ratio$infectivity_ratio, rpm_PPP2R1B , method = "spearman")
+
+linear_model <- lm(rpm_PPP2R1B ~ nef_ratio$infectivity_ratio)
+summary_linear_model <- summary(linear_model)
+
+r <- corr_spearman$estimate
+p_value <- corr_spearman$p.value
+r_squared <- summary_linear_model$r.squared
+
+plot(nef_ratio$infectivity_ratio,
+     rpm_PPP2R1B,
+     pch = 19,
+     col = color_vector,
+     xlab = "infectivity ratio",
+     ylab = "RPM",
+     main = "PPP2R1B")
+abline(linear_model)
+
+text(4, max(rpm_PPP2R1B),
+     paste("r", ":", round(r, 3)), pos = 2)
+text(4, max(rpm_PPP2R1B - 3),
+     paste("R" %p% supsc("2"), ":", round(r_squared, 4)), pos = 2)
+text(4, max(rpm_PPP2R1B - 6),
+     "P < 0.001", pos = 2)
+

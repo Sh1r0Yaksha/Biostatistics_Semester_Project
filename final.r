@@ -26,7 +26,6 @@ nef_ratio <- read.delim("infect.txt", header = FALSE)
 
 
 # Getting the unique IDs of all proteins and saving them in a csv file
-
 get_unique_ids <- function() {
   all_ids <- c()
 
@@ -85,7 +84,7 @@ get_correlation <- function(start, end) {
     if (is.na(protein_p_value) && is.na(protein_corr)) {
       rpm_values <- get_rpm(protein_id)
 
-      # Add RPM values to nef_ratio with a new column name based on the protein ID # nolint
+      # Add RPM values to nef_ratio with a new column name based on the protein ID
       nef_ratio[[paste0("RPM_", toupper(protein_id))]] <<- rpm_values
       corr <- cor.test(nef_ratio$V2, rpm_values, method = "pearson")
       proteins[i, "corr"] <<- corr$estimate
