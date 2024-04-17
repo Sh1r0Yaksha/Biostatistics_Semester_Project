@@ -1,7 +1,7 @@
 dev.off()
 rm(list = ls())
 
-serinc5 <- "ENSG00000164300"
+
 
 if (rstudioapi::isAvailable()) {
   if (require("rstudioapi") != TRUE) {
@@ -16,11 +16,14 @@ library("reporter")
 # Setting Working Directory
 setwd(paste0(wdir, "/Data"))
 
+serinc5 <- "ENSG00000164300"
+
+################ Anushka Khobragade 20049 ################
+
 # Importing nef data
 nef_ratio <- read.csv("infectivity_with_rpm.csv", header = TRUE)
 View(nef_ratio)
-proteins <- read.csv("proteins.csv", header = TRUE)
-View(proteins)
+
 # Plotting bar plot (Fig 1a)
 color_vector <- c("red", "red", "red", "red", "red",
                   "red", "red", "red", "green", "green",
@@ -59,6 +62,8 @@ text(5, max(rpm_serinc5 - 20),
      paste("R" %p% supsc("2"), ":", round(r_squared, 4)), pos = 2)
 text(4.5, max(rpm_serinc5 - 40),
      "P < 0.001", pos = 2)
+
+################ Akshat Singh 20031 ################
 
 # Hypothesis testing
 corr_spearman <- cor.test(nef_ratio$infectivity_ratio, rpm_serinc5 , method = "spearman")
@@ -169,7 +174,10 @@ barplot(variance_explained,
 axis(2, at = seq(0, 100, by = 10), labels = seq(0, 100, by = 10))
 
 
+
 # Plot of Proteins
+
+################ Sohum Ranade 20270 ################
 
 # HIRA
 HIRA <- "ENSG00000100084"
@@ -201,7 +209,7 @@ text(4, max(rpm_HIRA - 2),
      "P < 0.001", pos = 2)
 
 
-
+################ Gunashree Rathi 20123 ################
 
 # VMP1
 VMP1 <- "ENSG00000062716"
@@ -231,6 +239,37 @@ text(4, max(rpm_VMP1 - 10),
      paste("R" %p% supsc("2"), ":", round(r_squared, 4)), pos = 2)
 text(4, max(rpm_VMP1 - 20),
      "P < 0.001", pos = 2)
+
+# ATG13
+ATG13 <- "ENSG00000175224"
+rpm_ATG13 <- nef_ratio[, paste0("RPM_", ATG13)]
+
+corr <- cor.test(nef_ratio$infectivity_ratio, rpm_ATG13 , method = "pearson")
+
+linear_model <- lm(rpm_ATG13 ~ nef_ratio$infectivity_ratio)
+summary_linear_model <- summary(linear_model)
+
+r <- corr$estimate
+p_value <- corr$p.value
+r_squared <- summary_linear_model$r.squared
+
+plot(nef_ratio$infectivity_ratio,
+     rpm_ATG13,
+     pch = 19,
+     col = color_vector,
+     xlab = "infectivity ratio",
+     ylab = "RPM",
+     main = "ATG13")
+abline(linear_model)
+
+text(4, max(rpm_ATG13),
+     paste("r", ":", round(r, 3)), pos = 2)
+text(4, max(rpm_ATG13 - 3),
+     paste("R" %p% supsc("2"), ":", round(r_squared, 4)), pos = 2)
+text(4, max(rpm_ATG13 - 6),
+     "P < 0.001", pos = 2)
+
+################ Manas Kulkarni 20166 ################
 
 # PPP2R1B
 PPP2R1B <- "ENSG00000137713"

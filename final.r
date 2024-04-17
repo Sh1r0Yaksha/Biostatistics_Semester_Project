@@ -24,6 +24,7 @@ end_index <- 58302
 # Importing nef data
 nef_ratio <- read.delim("infect.txt", header = FALSE)
 
+################ Akshat Singh 20031 ################
 
 # Getting the unique IDs of all proteins and saving them in a csv file
 get_unique_ids <- function() {
@@ -56,6 +57,8 @@ write.csv(proteins, file = "proteins.csv", row.names = FALSE)
 proteins <- read.csv(file = "proteins.csv", na.strings = c("NA", "N/A", ""))
 View(proteins)
 
+################ Anushka Khobragade 20049 ################
+
 # Function to get the Reads per Millioin(RPM) of a given protein
 get_rpm <- function(protein) {
 
@@ -71,6 +74,7 @@ get_rpm <- function(protein) {
   rpm
 }
 
+################ Gunashree Rathi 20123 ################
 
 # Function to calculate the correlation and p_value of a protein from the list of proteins
 # with start and end index set previously
@@ -100,6 +104,8 @@ View(proteins)
 
 # Writing the updated proteins df with correlation and p_value to a csv
 write.csv(proteins, file = "proteins.csv", row.names = FALSE)
+
+################ Manas Kulkarni 20166 ################
 
 # Filtering the proteins whose pearson correlation p-values gave value less than 0.05 and removing null values
 proteins_filtered <- proteins[proteins$p_value < 0.05, ]
@@ -140,6 +146,8 @@ proteins_below_threshold <- read.csv("proteins_below_threshold.csv")
 proteins_below_threshold <- subset(proteins_below_threshold, select = c(id, p_value, corr, hgnc_symbol))
 proteins_below_threshold <- proteins_below_threshold[order(proteins_below_threshold$p_value), ]
 infectivity_with_rpm <- read.csv("infectivity_with_rpm.csv")
+
+################ Sohum Ranade 20270 ################
 
 for (i in 4:ncol(infectivity_with_rpm)) {
   col_name <- colnames(infectivity_with_rpm)[i]
